@@ -1,0 +1,6 @@
+#!/bin/sh
+ECHO=`which echo`
+BUILDDIR="../build_qemuarm"
+
+cd poky
+. ./oe-init-build-env ${BUILDDIR}
