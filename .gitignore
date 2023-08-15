@@ -3,6 +3,8 @@
 build*/cache/
 build*/tmp/
 build*/sstate-cache/
+build*/*.log
+build*/conf/templateconf.cfg
 downloads/
 
 poky/
