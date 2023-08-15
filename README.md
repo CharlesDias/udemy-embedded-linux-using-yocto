@@ -32,8 +32,5 @@ $ bitbake-layers show-layers
 
 * Check the list of available image recipes inside of Poky folder.
 ```
-$ ls poky/meta*/recipes*images/*.bb
+$ ls poky/meta*/recipes*/images/*.bb
 ```
-
-
-${TOPDIR}/../layers/meta-toradex-distro \
