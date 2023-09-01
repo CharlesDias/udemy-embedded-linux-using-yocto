@@ -1,0 +1,6 @@
+#!/bin/sh
+ECHO=`which echo`
+BUILDDIR="../build_bbb"
+
+cd poky
+. ./oe-init-build-env ${BUILDDIR}
