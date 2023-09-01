@@ -303,7 +303,30 @@ Poweroff the QEMU emulator.
 
 8. You can build againg the core-image-weston to add the package `usbutils`.
 
-## 4 - Creating a partitions and formatting the SD card
+## 4 - Burndown the image using the WIC
+
+1. The fastest and easiest way of using the wic file.
+
+2. Connecting the SD card to PC and run the command `sudo dmesg` to see witch sdX  SD card was detected. For example
+
+```console
+[ 2299.384103]  sdb: sdb1 sdb2
+[ 2299.384280] sd 1:0:0:0: [sdb] Attached SCSI removable disk
+```
+
+3. Use the dd command transfer the file to SD card.
+
+```console
+$ sudo dd if=core-image-minimal-beaglebone-yocto.wic of=/dev/sdX bs=4M
+```
+
+4. Run the `sync` command. That is it! Remove the SD card and connect it to BBB.
+
+## 5 - Burndown the image manually
+
+**ATTENTION: These steps DIDN'T works. The BBB does not power on.**
+
+### 5.1 Creating a partitions and formatting the SD card
 
 This can be done via GPart. However, below has the instructions to performs via fdisk commands.
 
@@ -471,3 +494,44 @@ sudo mkfs.vfat -n "BOOT" /dev/sdXY
 sudo mkfs.ext4 -L "ROOT" /dev/sdXY
 ```
 
+### 5.2 Store the files on SD card
+
+1. Reconnect the SD card. Check if it was automatically mounted. If is not, we can mount then via Files management or by commands.
+
+```console
+$ sudo mount /dev/sdXY /media/$USER/BOOT
+$ sudo mount /dev/sdXY /media/$USER/ROOT
+```
+
+2. Copy the u-boot MLO, u-boot bootloader image, the kernel image, and the DTB files into boot partition.
+
+```console
+$ sudo cp MLO /media/$USER/BOOT
+$ sudo cp u-boot.img /media/$USER/BOOT
+$ sudo cp zImage /media/$USER/BOOT
+$ sudo cp am335x-boneblack.dtb /media/$USER/BOOT
+```
+
+3. As a root user, uncompress core-image-minimal-beaglebone-yocto.tar.bz2 to the ext4 partition.
+
+```console
+$ sudo tar -xf core-image-minimal-beaglebone-yocto.tar.bz2 -C /media/$USER/ROOT
+```
+
+4. Run the `sync` command and umount the SD card. Connect the SD card to BBB.
+
+
+```console
+```
+
+```console
+```
+
+```console
+```
+
+```console
+```
+
+```console
+```
