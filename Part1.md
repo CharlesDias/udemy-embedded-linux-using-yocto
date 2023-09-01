@@ -303,7 +303,7 @@ Poweroff the QEMU emulator.
 
 8. You can build againg the core-image-weston to add the package `usbutils`.
 
-## 4 - Burndown the image using the WIC
+## 4 - Burndown the core-image-minimal using the WIC
 
 1. The fastest and easiest way of using the wic file.
 
@@ -322,9 +322,9 @@ $ sudo dd if=core-image-minimal-beaglebone-yocto.wic of=/dev/sdX bs=4M
 
 4. Run the `sync` command. That is it! Remove the SD card and connect it to BBB.
 
-## 5 - Burndown the image manually
+## 5 - Burndown the image core-image-sato
 
-**ATTENTION: These steps DIDN'T works. The BBB does not power on.**
+**ATTENTION: If you are using the core-image-minimal, the steps are slightly different. See the link: https://www.beagleboard.org/projects/yocto-on-beaglebone-black**
 
 ### 5.1 Creating a partitions and formatting the SD card
 
