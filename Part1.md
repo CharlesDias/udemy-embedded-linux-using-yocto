@@ -160,7 +160,7 @@ Power off the QEMU emulator.
 $ runqemu qemuarm core-image-minimal nographic
 ```
 
-# 2 - Build and run the core-image-weston
+## 2 - Build and run the core-image-weston
 
 1. The Poky has two reference desktop images, or **core-image-sato** and **core-image-weston**. 
 
@@ -216,7 +216,7 @@ tmpfs                   245.1M     72.0K    245.0M   0% /var/volatile
 
 Noticed that the /dev/root has the 317.2MB of size and 172.2MB (58%) are used.
 
-# 3 - Add lsusb to Yocto image
+## 3 - Add lsusb to Yocto image
 
 1. Start the QEMU core-image-minimal.
 
@@ -302,3 +302,172 @@ tmpfs                   118.3M     56.0K    118.3M   0% /var/volatile
 Poweroff the QEMU emulator.
 
 8. You can build againg the core-image-weston to add the package `usbutils`.
+
+## 4 - Creating a partitions and formatting the SD card
+
+This can be done via GPart. However, below has the instructions to performs via fdisk commands.
+
+1. Connecting the SD card to PC and run the command `sudo dmesg` to see witch sdX  SD card was detected. For example
+
+```console
+[ 2299.384103]  sdb: sdb1 sdb2
+[ 2299.384280] sd 1:0:0:0: [sdb] Attached SCSI removable disk
+```
+
+2. Umount any mounted partition, for exemplo
+
+```console
+$ umount /dev/sdXY
+```
+
+3. Launch the fdisk utility and delete the previous partitions.
+
+```console
+sudo fdisk /dev/sdX
+```
+
+4. Press `p` to see the available partitions
+
+```console
+Command (m for help): p
+Disk /dev/sdb: 3,69 GiB, 3965190144 bytes, 7744512 sectors
+Disk model: Storage Device  
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x1f4ea427
+
+Device     Boot  Start     End Sectors  Size Id Type
+/dev/sdb1         8192  532479  524288  256M  c W95 FAT32 (LBA)
+/dev/sdb2       532480 7744511 7212032  3,4G 83 Linux
+```
+
+5. Press `d` and enter the number `1` to delete the partition. Press `d` again to delet others partitions.
+
+6. Now, create a new partition called BOOT with 32 MB of size and primary type.
+
+```console
+Command (m for help): n
+Partition type
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended (container for logical partitions)
+Select (default p): p
+Partition number (1-4, default 1): 1
+First sector (2048-7744511, default 2048): 
+Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-7744511, default 7744511): +32M
+
+Created a new partition 1 of type 'Linux' and of size 32 MiB.
+```
+
+7. Create a second partition to hold rootf. We can give all the remaining space to this partition. This will be a primary type.
+
+```console
+Command (m for help): n
+Partition type
+   p   primary (1 primary, 0 extended, 3 free)
+   e   extended (container for logical partitions)
+Select (default p): p
+Partition number (2-4, default 2): 
+First sector (67584-7744511, default 67584): 
+Last sector, +/-sectors or +/-size{K,M,G,T,P} (67584-7744511, default 7744511): 
+
+Created a new partition 2 of type 'Linux' and of size 3,7 GiB.
+```
+
+8. Set the first partition bootable by setting the boot flag.
+
+```console
+Command (m for help): a
+Partition number (1,2, default 2): 1
+
+The bootable flag on partition 1 is enabled now.
+```
+
+9. Format the first partition as WIN95 FAT32 (LBA). Press the `t` and enter the number `1` to select the first partition. Press `L` to list the all codes and enter the correspondent code to `WIN95 FAT32 (LBA)` option.
+
+
+```console
+Command (m for help): t
+Partition number (1,2, default 2): 1
+Hex code or alias (type L to list all): L
+
+00 Empty            24 NEC DOS          81 Minix / old Lin  bf Solaris        
+01 FAT12            27 Hidden NTFS Win  82 Linux swap / So  c1 DRDOS/sec (FAT-
+02 XENIX root       39 Plan 9           83 Linux            c4 DRDOS/sec (FAT-
+03 XENIX usr        3c PartitionMagic   84 OS/2 hidden or   c6 DRDOS/sec (FAT-
+04 FAT16 <32M       40 Venix 80286      85 Linux extended   c7 Syrinx         
+05 Extended         41 PPC PReP Boot    86 NTFS volume set  da Non-FS data    
+06 FAT16            42 SFS              87 NTFS volume set  db CP/M / CTOS / .
+07 HPFS/NTFS/exFAT  4d QNX4.x           88 Linux plaintext  de Dell Utility   
+08 AIX              4e QNX4.x 2nd part  8e Linux LVM        df BootIt         
+09 AIX bootable     4f QNX4.x 3rd part  93 Amoeba           e1 DOS access     
+0a OS/2 Boot Manag  50 OnTrack DM       94 Amoeba BBT       e3 DOS R/O        
+0b W95 FAT32        51 OnTrack DM6 Aux  9f BSD/OS           e4 SpeedStor      
+0c W95 FAT32 (LBA)  52 CP/M             a0 IBM Thinkpad hi  ea Linux extended 
+0e W95 FAT16 (LBA)  53 OnTrack DM6 Aux  a5 FreeBSD          eb BeOS fs        
+0f W95 Ext'd (LBA)  54 OnTrackDM6       a6 OpenBSD          ee GPT            
+10 OPUS             55 EZ-Drive         a7 NeXTSTEP         ef EFI (FAT-12/16/
+11 Hidden FAT12     56 Golden Bow       a8 Darwin UFS       f0 Linux/PA-RISC b
+12 Compaq diagnost  5c Priam Edisk      a9 NetBSD           f1 SpeedStor      
+14 Hidden FAT16 <3  61 SpeedStor        ab Darwin boot      f4 SpeedStor      
+16 Hidden FAT16     63 GNU HURD or Sys  af HFS / HFS+       f2 DOS secondary  
+17 Hidden HPFS/NTF  64 Novell Netware   b7 BSDI fs          fb VMware VMFS    
+18 AST SmartSleep   65 Novell Netware   b8 BSDI swap        fc VMware VMKCORE 
+1b Hidden W95 FAT3  70 DiskSecure Mult  bb Boot Wizard hid  fd Linux raid auto
+1c Hidden W95 FAT3  75 PC/IX            bc Acronis FAT32 L  fe LANstep        
+1e Hidden W95 FAT1  80 Old Minix        be Solaris boot     ff BBT            
+
+Aliases:
+   linux          - 83
+   swap           - 82
+   extended       - 05
+   uefi           - EF
+   raid           - FD
+   lvm            - 8E
+   linuxex        - 85
+Hex code or alias (type L to list all): 0c
+
+Changed type of partition 'Linux' to 'W95 FAT32 (LBA)'.
+```
+
+10. The final expected result is
+
+```console
+Command (m for help): p
+Disk /dev/sdb: 3,69 GiB, 3965190144 bytes, 7744512 sectors
+Disk model: Storage Device  
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x1f4ea427
+
+Device     Boot Start     End Sectors  Size Id Type
+/dev/sdb1  *     2048   67583   65536   32M  c W95 FAT32 (LBA)
+/dev/sdb2       67584 7744511 7676928  3,7G 83 Linux
+```
+
+11. Press the `w` command to write the modifications.
+
+```console
+Command (m for help): w
+The partition table has been altered.
+Calling ioctl() to re-read partition table.
+Syncing disks.
+```
+
+**Note: Do not forget to set the first partition as WIN95 FAT32 (LBA), otherwise, BeagleBone won't be able to boot from it.**
+
+12. Format the first partition as FAT filesystem.
+
+```console
+sudo mkfs.vfat -n "BOOT" /dev/sdXY
+```
+
+13. Format the second partition as ext4 filesystem. This takes some time.
+
+```console
+sudo mkfs.ext4 -L "ROOT" /dev/sdXY
+```
+
