@@ -2,11 +2,14 @@
 
 [Udemy course link.](https://www.udemy.com/course/embedded-linux-using-yocto/)
 
-Resume
+## Resume
 
-* [1.1 - Build and using the core-image-minimal.](#1---build-and-using-the-core-image-minimal)
-* [1.2 - Add lsusb to Yocto image.](#2---add-lsusb-to-yocto-image)
-* [1.3 - Build and run an image desktop.](#3---build-and-run-an-image-desktop)
+* [1 - Build and using the core-image-minimal.](#1---build-and-using-the-core-image-minimal)
+* [2 - Build and run the core-image-weston.](#2---build-and-run-the-core-image-weston)
+* [3 - Add lsusb to Yocto image.](#3---add-lsusb-to-yocto-image)
+* [4 - Flashing the core-image-minimal using the WIC.](#4---flashing-the-core-image-minimal-using-the-wic)
+* [5 - Flashing the core-image-sato.](#5---flashing-the-core-image-sato)
+* []()
 
 ## 1 - Build and using the core-image-minimal
 
@@ -303,7 +306,7 @@ Poweroff the QEMU emulator.
 
 8. You can build againg the core-image-weston to add the package `usbutils`.
 
-## 4 - Burndown the core-image-minimal using the WIC
+## 4 - Flashing the core-image-minimal using the WIC
 
 1. The fastest and easiest way of using the wic file.
 
@@ -317,12 +320,12 @@ Poweroff the QEMU emulator.
 3. Use the dd command transfer the file to SD card.
 
 ```console
-$ sudo dd if=core-image-minimal-beaglebone-yocto.wic of=/dev/sdX bs=4M
+$ sudo dd if=core-image-minimal-beaglebone-yocto.wic of=/dev/sdX bs=4M status=progress && sync
 ```
 
-4. Run the `sync` command. That is it! Remove the SD card and connect it to BBB.
+4. That is it! Remove the SD card and connect it to BBB.
 
-## 5 - Burndown the image core-image-sato
+## 5 - Flashing the core-image-sato
 
 **ATTENTION: If you are using the core-image-minimal, the steps are slightly different. See the link: https://www.beagleboard.org/projects/yocto-on-beaglebone-black**
 
@@ -494,7 +497,9 @@ sudo mkfs.vfat -n "BOOT" /dev/sdXY
 sudo mkfs.ext4 -L "ROOT" /dev/sdXY
 ```
 
-### 5.2 Store the files on SD card
+### 5.2 Store the files on SD card (valid only for core-image-sato)
+
+ATTENTION: If you are using the core-image-minimal, the steps are slightly different. See the link: https://www.beagleboard.org/projects/yocto-on-beaglebone-black
 
 1. Reconnect the SD card. Check if it was automatically mounted. If is not, we can mount then via Files management or by commands.
 
@@ -521,11 +526,96 @@ $ sudo tar -xf core-image-minimal-beaglebone-yocto.tar.bz2 -C /media/$USER/ROOT
 4. Run the `sync` command and umount the SD card. Connect the SD card to BBB.
 
 
-```console
-```
+## 6 - Add support to meta-ti-bsp support and build image to beaglebone machine
+
+### 6.1 - Add meta layers and build image
+
+1. Access the project folder and create a `layers` folder.
 
 ```console
+$ mkdir layers
 ```
+
+2. And inside the layers folder, clone the meta-ti layer. Pay attention to clone the Kirkstone branch version.
+
+```console
+$ git clone -b kirkstone git://git.yoctoproject.org/meta-ti
+```
+
+3. Important to notice that the meta-ti layers has meta-arm layers and openembedded-core (the meta layers is already include by /poky/meta) as dependencies. This way, we have to clone the meta-arm layer.
+
+```console
+$ git clone -b kirkstone git://git.yoctoproject.org/meta-arm
+```
+4. Opening the bblayers.conf and add the path to the new layers.
+
+```console
+  ${TOPDIR}/../layers/meta-ti/meta-ti-bsp \
+  ${TOPDIR}/../layers/meta-ti/meta-ti-extras \
+  ${TOPDIR}/../layers/meta-arm/meta-arm \
+  ${TOPDIR}/../layers/meta-arm/meta-arm-toolchain \
+```
+
+5. Open the local.conf and set `Machine` to `beaglebone`
+
+```console
+MACHINE ?= "beaglebone"
+```
+
+6. Also enable rm_work to save disk space.
+
+```console
+INHERIT += "rm_work"
+```
+
+7. Generate an minimal image
+
+```console
+bitbake core-image-minimal
+```
+
+### 6.2 Flashing the image on SD card using wic file.
+
+WIC images file are SD Card images that can be directly written into SD Card.
+
+#### 6.2.1 Flashing via [balenaEtcher software](https://etcher.balena.io/)
+
+1. Install the balenaEtcher software.
+
+2. Connect the SD card to PC.
+
+3. Open the software and select the `core-image-minimal-beaglebone-20230907201436.rootfs.wic.xz` file.
+
+4. Select the SD card and flash the it. The balenaEtcher will umcompress the file and flash it into SD card. Wait until finished.
+
+5. Remove the SD card and connect it to BeagleBone Black.
+
+#### 6.2.2 Flashing via `dd` command
+
+1. Uncompress the `core-image-minimal-beaglebone-20230907201436.rootfs.wic.xz` file. Install the `xz-utils`
+ package if necessary.
+
+```console
+$ unxz build_bbb/tmp/deploy/images/beaglebone/core-image-minimal-beaglebone-20230907201436.rootfs.wic.xz
+```
+
+2. Run the command wic ls to see the partions that exist in wic file
+
+```console
+$ wic ls core-image-minimal-beaglebone-20230907201436.rootfs.wic
+Num     Start        End          Size      Fstype
+ 1       1048576    135266303    134217728  fat16
+ 2     135266304    166197247     30930944  ext4
+```
+
+3. Flash it to SD card via `dd` command. Remeber to change the `/dev/sdX` to the correct one. USe the `lsblk` or `dmesg` commands to see the device block name.
+
+```console
+$ sudo dd if=core-image-minimal-beaglebone-20230907201436.rootfs.wic of=/dev/sdX bs=4M status=progress && sync
+```
+
+4. Remove the SD card and connect it to BeagleBone Black.
+
 
 ```console
 ```
