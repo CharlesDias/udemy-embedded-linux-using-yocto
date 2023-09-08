@@ -9,7 +9,8 @@
 * [3 - Add lsusb to Yocto image.](#3---add-lsusb-to-yocto-image)
 * [4 - Flashing the core-image-minimal using the WIC.](#4---flashing-the-core-image-minimal-using-the-wic)
 * [5 - Flashing the core-image-sato.](#5---flashing-the-core-image-sato)
-* []()
+* [6 - Add support meta layers to TI BeagleBone](#6---add-support-meta-layers-to-ti-beaglebone)
+* [7 - Adding extra free space to the root filesystem](#7---adding-extra-free-space-to-the-root-filesystem)
 
 ## 1 - Build and using the core-image-minimal
 
@@ -526,7 +527,7 @@ $ sudo tar -xf core-image-minimal-beaglebone-yocto.tar.bz2 -C /media/$USER/ROOT
 4. Run the `sync` command and umount the SD card. Connect the SD card to BBB.
 
 
-## 6 - Add support to meta-ti-bsp support and build image to beaglebone machine
+## 6 - Add support meta layers to TI BeagleBone
 
 ### 6.1 - Add meta layers and build image
 
@@ -616,12 +617,58 @@ $ sudo dd if=core-image-minimal-beaglebone-20230907201436.rootfs.wic of=/dev/sdX
 
 4. Remove the SD card and connect it to BeagleBone Black.
 
+## 7 - Adding extra free space to the root filesystem
+
+1. The variable `IMAGE_ROOTFS_EXTRA_SPACE` specifies the value in kilobytes to the extra space. By default, it will not add extra space to the rootfs. Check it by the commnad below.
 
 ```console
+$ bitbake -e core-image-minimal | grep ^IMAGE_ROOTFS_EXTRA_SPACE
+IMAGE_ROOTFS_EXTRA_SPACE="0"
+```
+2. Connect the SD card to PC and runs the `lsblk` to identify the storage device.
+
+3. Using the FDISK to check how many unpartitioned space are available. Run the commands below (change the `/dev/sdX` to the correct one).
+
+```console
+$ sudo fdisk /dev/sdX
 ```
 
-```console
-```
+Check the unpartitioned space size by pressing `F`.
 
 ```console
+Command (m for help): F
+
+Unpartitioned space /dev/sdb: 3,54 GiB, 3798466560 bytes, 7418880 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+
+ Start     End Sectors  Size
+325632 7744511 7418880  3,5G
+```
+
+4. For that situation, let's us to add 2834432 KB into the variable. That we'll give us a final size image of 3.92 GB. 
+
+5. Open the local.conf and add the variable below.
+
+```console
+IMAGE_ROOTFS_EXTRA_SPACE="2834432"
+```
+
+6. Build the core-image-minal again
+
+```console
+$ bitbake core-image-minimal
+```
+
+7. Flashing the new image and connect to the BeagleBone.
+
+*. Access the BeagleBone and check the partition space.
+
+```console
+# df -h
+Filesystem                Size      Used  Available    Use%    Mounted on
+/dev/root                 3.3G     12.7M       3.1G      0%    /
+devtmpfs                217.4M         0     217.4M      0%    /dev
+tmpfs                   241.9M     76.0K     241.8M      0%    /run
+tmpfs                   241.9M     60.0K     241.8M      0%    /var/volatile 
 ```
