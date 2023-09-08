@@ -30,7 +30,30 @@ $ bitbake -k <image-name>
 $ bitbake-layers show-layers
 ```
 
-* Check the list of available image recipes inside of Poky folder.
+* List of the available image recipes inside of Poky folder.
 ```
 $ ls poky/meta*/recipes*/images/*.bb
 ```
+
+* List of the available machine supported.
+```
+$ ls poky/meta*/conf/machine/*.conf
+```
+
+* Check the variable value
+
+```console
+$ bitbake -e <image-name> | grep ^<variable-name>
+```
+
+Example
+
+```console
+$ bitbake -e core-image-minimal | grep ^IMAGE_INSTALL
+```
+
+* To help you see where you currently are with kernel and root filesystem sizes, you can use two tools found in the Source Directory in the scripts/tiny/ directory:
+
+ksize.py: Reports component sizes for the kernel build objects.
+
+dirsize.py: Reports component sizes for the root filesystem.
