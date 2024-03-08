@@ -1,0 +1,21 @@
+#!/bin/sh
+case "$1" in
+        start|"")
+		if ! [ -e /dev/video0 ]
+		then
+			echo "Waiting for /dev/video0 to be ready..."
+			while ! [ -e /dev/video0 ]
+			do
+				usleep 1000
+			done
+		fi
+		ffmpeg -t 10 -f video4linux2 -video_size 320x240 -input_format mjpeg -i /dev/video0 -pix_fmt bgra -f fbdev /dev/fb0
+                ;;
+        stop)
+		killall ffmpeg
+                ;;
+        *)
+                echo "Usage: playvideo {start|stop}" >&2
+                exit 1
+                ;;
+esac

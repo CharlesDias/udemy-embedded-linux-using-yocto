@@ -28,6 +28,28 @@
         status = "okay";
     };
 
+    tscadc {
+        compatible = "ti,ti-tscadc";
+        reg = <0x44e0d000 0x1000>;
+
+        interrupt-parent = <&intc>;
+        interrupts = <16>;
+        ti,hwmods = "adc_tsc";
+        status = "okay";
+
+        tsc {
+            ti,wires = <4>;
+            ti,x-plate-resistance = <200>;
+            ti,coordinate-readouts = <5>;
+            ti,touch-type = <1>;
+            ti,wire-config = <0x00 0x11 0x22 0x33>;
+        };
+
+        adc {
+            ti,adc-channels = <4 5 6 7>;
+        };
+    };
+
     /* Settings for NHD-4.3-ATXI#-T-1 / LCD4 cape: */
     panel {
         compatible = "ti,tilcdc,panel";
@@ -76,20 +98,20 @@
 };
 
 
-&tscadc {
-    status = "okay";
-    tsc {
-        ti,wires = <4>;
-        ti,x-plate-resistance = <200>;
-        ti,coordinate-readouts = <5>;
-        ti,wire-config = <0x00 0x11 0x22 0x33>;
-        ti,charge-delay = <0x400>;
-    };
+// &tscadc {
+//     status = "okay";
+//     tsc {
+//         ti,wires = <4>;
+//         ti,x-plate-resistance = <200>;
+//         ti,coordinate-readouts = <5>;
+//         ti,wire-config = <0x00 0x11 0x22 0x33>;
+//         ti,charge-delay = <0x400>;
+//     };
 
-    adc {
-        ti,adc-channels = <4 5 6 7>;
-    };
-};
+//     adc {
+//         ti,adc-channels = <4 5 6 7>;
+//     };
+// };
 
 &am33xx_pinmux {
     bb_lcd_pwm_backlight_pins: pinmux_bb_lcd_pwm_backlight_pins {
@@ -127,15 +149,15 @@
         >;
     };
 
-    bb_lcd_keymap_pins: pinmux_bb_lcd_keymap_pins {
-        pinctrl-single,pins = <
-            AM33XX_PADCONF(AM335X_PIN_GPMC_A0, PIN_INPUT, MUX_MODE7)	/* P9_15: gpmc_a0.gpio1_16 */
-            AM33XX_PADCONF(AM335X_PIN_GPMC_A1, PIN_INPUT, MUX_MODE7)	/* P9_23: gpmc_a1.gpio1_17 */
-            AM33XX_PADCONF(AM335X_PIN_GPMC_A3, PIN_INPUT, MUX_MODE7)	/* P9_16: gpmc_a3.gpio1_19 */
-            AM33XX_PADCONF(AM335X_PIN_MCASP0_AXR0, PIN_INPUT, MUX_MODE7)	/* P9_30: mcasp0_axr0.gpio3_16 */
-            AM33XX_PADCONF(AM335X_PIN_UART1_TXD, PIN_INPUT, MUX_MODE7)	/* P9_24: uart1_txd.gpio0_15 */
-        >;
-    };
+    // bb_lcd_keymap_pins: pinmux_bb_lcd_keymap_pins {
+    //     pinctrl-single,pins = <
+    //         AM33XX_PADCONF(AM335X_PIN_GPMC_A0, PIN_INPUT, MUX_MODE7)	/* P9_15: gpmc_a0.gpio1_16 */
+    //         AM33XX_PADCONF(AM335X_PIN_GPMC_A1, PIN_INPUT, MUX_MODE7)	/* P9_23: gpmc_a1.gpio1_17 */
+    //         AM33XX_PADCONF(AM335X_PIN_GPMC_A3, PIN_INPUT, MUX_MODE7)	/* P9_16: gpmc_a3.gpio1_19 */
+    //         AM33XX_PADCONF(AM335X_PIN_MCASP0_AXR0, PIN_INPUT, MUX_MODE7)	/* P9_30: mcasp0_axr0.gpio3_16 */
+    //         AM33XX_PADCONF(AM335X_PIN_UART1_TXD, PIN_INPUT, MUX_MODE7)	/* P9_24: uart1_txd.gpio0_15 */
+    //     >;
+    // };
 };
 
 &lcdc {
