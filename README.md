@@ -109,6 +109,8 @@ Remember to replace `<recipe>` and `<task>` with the actual recipe name and task
 | `LAYER_CONF_VERSION` | Specifies the version of the layer configuration file format. |
 | `BBFILE_PRIORITY` | Specifies the priority of the recipes in a layer. |
 | `BBFILE_PATTERN` | Specifies a pattern to match the recipes in a layer. |
+| `bindir` | Specifies the `/usr/bin` path folder. |
+| `libdir` | Specifies the `/usr/lib` path folder. |
 
 
 ## Common tasks in the recipe build flow

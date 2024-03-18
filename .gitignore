@@ -1,7 +1,7 @@
 # Yocto project
 .repo/*
 build*/cache/
-build*/tmp/
+build*/tmp*/
 build*/sstate-cache/
 build*/*.log
 build*/conf/templateconf.cfg
